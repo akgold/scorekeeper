@@ -6,6 +6,7 @@ import os
 import datetime
 
 app = Flask(__name__)
+@app.route("/")
 
 def load_twilio_config():
     twilio_account_sid = os.environ.get('TWILIO_ACCOUNT_SID')
@@ -17,6 +18,8 @@ def load_twilio_config():
         raise MiddlewareNotUsed
 
     return (twilio_number, twilio_account_sid, twilio_auth_token)
+
+
 
 class Award(object):
     def __init__(self):
@@ -38,35 +41,41 @@ class Person(object):
         (name, number) = intro_text()
         self.name = name
         self.number = number
+        self.id = assign_id(name, number)
 
-    def add(self):
+    def assign_id(name, number):
         '''
-        Add person to db.
+        Add person to db and return id.
         '''
 
-    def add_points(amt, name):
+    def add_points(amt, id):
         '''
         Add amt points to person.
         '''
 
-    def get_points(number):
+    def get_points(id):
         '''
         Get total points person has.
         '''
 
-    def get_name(number):
+    def get_name(id):
         '''
         Given a number, get the name.
         '''
 
-    def get_number(name):
+    def get_number(id):
         '''
         Given a name, get the number
         '''
 
-    def exists(name):
+    def get_id_from_name(name):
         '''
-        Given a name, check if exists.
+        Given a name, return id.
+        '''
+
+    def get_id_from_num(number):
+        '''
+        Given a number, return id.
         '''
 
 
