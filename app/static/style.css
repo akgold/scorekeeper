@@ -1,0 +1,10 @@
+body {
+  background-color: gold;
+  font-family: 'Oswald', sans-serif;
+}
+
+h1 {
+  text-align: center;
+  text-transform: uppercase;
+  font-style: italic;
+}

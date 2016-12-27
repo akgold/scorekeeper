@@ -1,0 +1,36 @@
+{% extends "bootstrap/base.html" %}
+
+{% block title %}Scorekeeper{% endblock %}
+
+{% block styles %}
+{{super()}}
+<link href="https://fonts.googleapis.com/css?family=Oswald" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"/>
+{% endblock %}
+
+{% block scripts %}
+{{super()}}
+<script src="{{ url_for('static', filename='bundle.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+<div class='jumbotron'>
+  <div class='container'>
+    <h1>Scorekeeper</h1>
+  </div>
+</div>
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-6 col-md-push-3">
+      <table class="table">
+        <thead>
+          <th>Name</th>
+          <th>Score</th>
+        </thead>
+        <tbody><tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
