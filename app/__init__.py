@@ -7,8 +7,7 @@ import os
 
 app = Flask(__name__)
 Bootstrap(app)
-CONFIG_LOC = '/Users/agold/Documents/scorekeeper/app/config.py'
-app.config.from_envvar('CONFIG_LOC')
+app.config.from_object('app.config')
 db = SQLAlchemy(app)
 
 from app import models, views
