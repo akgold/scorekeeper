@@ -3,9 +3,10 @@ import os
 import unittest
 
 from app.config import basedir
-from app import app, db
+from app import app, db, views
 from app.models import Person, Award, Text
 from datetime import datetime
+import json
 
 class TestCase(unittest.TestCase):
     def setUp(self):
@@ -19,8 +20,9 @@ class TestCase(unittest.TestCase):
         db.session.remove()
         db.drop_all()
 
-
+    ################################
     # Person Class
+    ################################
     def test_add_points(self):
         p = Person(name = 'alex', number = '123123', total_points = 0)
         db.session.add(p)
@@ -55,8 +57,9 @@ class TestCase(unittest.TestCase):
 
         assert p == q
         assert p == r
-
+    ################################
     # Text Class
+    ################################
     def test_check_if_first(self):
         text = Text(number = "123123", body = "Farts.", time = datetime.now())
         assert text.check_if_first() == True
@@ -185,21 +188,19 @@ class TestCase(unittest.TestCase):
         assert a.time == time
         assert a.amount == 100
 
+    ################################
+    # Scoreboard
+    ################################
 
+    def test_get_scoreboard(self):
+        with app.test_request_context():
+            p = Person(name = 'alex', number = '123456', total_points = 100)
+            q = Person(name = 'xaq', number = '123451', total_points = 120)
+            r = Person(name = 'shosh', number = '123452', total_points = 150)
+            db.session.add_all((p, q, r))
+            db.session.commit()
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+            assert views.get_scoreboard().get_data() == b'{\n  "alex": 100.0, \n  "shosh": 150.0, \n  "xaq": 120.0\n}\n'
 
 if __name__ == '__main__':
     unittest.main()
