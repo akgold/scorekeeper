@@ -1,0 +1,30 @@
+{
+  "name": "scorekeeper",
+  "version": "1.0.0",
+  "description": "Points!",
+  "main": "index.js",
+  "scripts": {
+    "build": "webpack"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/akgold/scorekeeper.git"
+  },
+  "author": "alex.k.gold@gmail.com, xaq.rox@gmail.com",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/akgold/scorekeeper/issues"
+  },
+  "homepage": "https://github.com/akgold/scorekeeper#readme",
+  "devDependencies": {
+    "babel-core": "^6.21.0",
+    "babel-loader": "^6.2.10",
+    "babel-preset-env": "^1.1.4",
+    "babel-preset-es2015": "^6.18.0",
+    "webpack": "^1.14.0"
+  },
+  "dependencies": {
+    "d3": "^4.4.0",
+    "underscore": "^1.8.3"
+  }
+}

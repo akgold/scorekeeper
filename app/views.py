@@ -1,15 +1,14 @@
 from app import app
 from app.models import Person, Text
 import flask
-from flask import request
+from flask import request, render_template
 from twilio import twiml
 from datetime import datetime
 
 @app.route('/')
 @app.route('/index')
 def index():
-    return "Hello, World!"
-
+    return render_template('index.html')
 
 @app.route('/get_scoreboard', methods = ['GET', 'POST'])
 def get_scoreboard():
@@ -31,4 +30,3 @@ def incoming_text():
 		resp = twiml.Response()
 		resp.message(text.process_text())
 		return str(resp)
-
