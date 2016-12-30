@@ -125,6 +125,7 @@ class Text(object):
         a = Award()
 
         # Allow people to use format [#] points to [NAME] for [REASON]
+        add = 0
         if text[1] == "points":
             add = 1
 
@@ -165,6 +166,12 @@ class Text(object):
             amt = float(text[0])
         except ValueError:
             raise ValueError("Your text needs to start with a number.")
+
+        if(amt < 0):
+            raise ValueError("You're a jerk! You can't take points like that! Sneaky.")
+
+        if(amt > 100):
+            raise ValueError("Be reasonable. Point values between 0 and 100 only.")    
         
         if(fill1 != "to" or fill2 != "for"):
             raise ValueError("Please format text as [#] to [NAME] for [REASON].")

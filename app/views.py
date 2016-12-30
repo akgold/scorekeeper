@@ -1,5 +1,6 @@
 from app import app
 from app.models import Person, Text
+from twilio.rest import TwilioRestClient 
 import flask
 import json
 from flask import request, render_template
@@ -20,8 +21,17 @@ def get_scoreboard():
 def incoming_text():
 	if request.method == 'POST':
 		text = Text(
-			number = str(request.json['From']), 
-			body = str(request.json['Body']), 
+			number = str(request.form.to_dict()['From']), 
+			body = str(request.form.to_dict()['Body']), 
 			time = datetime.now()
-			)
+		)
+
+		client = TwilioRestClient(ACCOUNT_SID, AUTH_TOKEN) 
+
+		client.messages.create(
+    		to=text.number, 
+    		from_=ACCOUNT_NUM, 
+    		body=str(text.process_text())
+		)
+
 		return(str(text.process_text()))

@@ -128,14 +128,14 @@ class TestCase(unittest.TestCase):
         assert str(exp.exception) == "Your text needs to start with a number."
 
         # Number at open but wrong format
-        text = Text(number = "123123", body = "123 points to gryffindor! Yay!", time = datetime.now()) 
+        text = Text(number = "123123", body = "87 points to gryffindor! Yay!", time = datetime.now()) 
         with self.assertRaises(ValueError) as exp:
             text.check_points_format()
 
         assert str(exp.exception) == "Please format text as [#] to [NAME] for [REASON]."
 
         # Proper format but don't have name
-        text = Text(number = "123123", body = "123 to alex for coding", time = datetime.now()) 
+        text = Text(number = "123123", body = "87 to alex for coding", time = datetime.now()) 
         with self.assertRaises(ValueError) as exp:
             text.check_points_format()
 
@@ -147,13 +147,13 @@ class TestCase(unittest.TestCase):
         db.session.add(p)
         db.session.commit()
 
-        text = Text(number = "123123", body = "123 to alex for coding", time = datetime.now()) 
+        text = Text(number = "123123", body = "87 to alex for coding", time = datetime.now()) 
         with self.assertRaises(ValueError) as exp:
             text.check_points_format()
 
         assert str(exp.exception) == ("You can't give yourself points!")
 
-        text = Text(number = "123321", body = "123 to alex for coding", time = datetime.now())
+        text = Text(number = "123321", body = "87 to alex for coding", time = datetime.now())
         assert text.check_points_format() == None
 
     def test_process_text(self):
@@ -202,6 +202,12 @@ class TestCase(unittest.TestCase):
 
         text = Text(number = "123123", body = "100 to Xaq for sweet tunes", time = datetime.now())
         assert text.process_text() == "You can't give yourself points!"
+
+        text = Text(number = "123123", body = "1000 to Alex for sweet tunes", time = datetime.now())
+        assert text.process_text() == "Be reasonable. Point values between 0 and 100 only."
+
+        text = Text(number = "123123", body = "-100 to Alex for bad tunes", time = datetime.now())
+        assert text.process_text() == "You're a jerk! You can't take points like that! Sneaky."
 
         time = datetime.now()
         text = Text(number = "123123", body = "100 to Alex for coding so good", time = time)
