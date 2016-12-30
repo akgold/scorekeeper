@@ -1,8 +1,8 @@
 from app import app
 from app.models import Person, Text
 import flask
+import json
 from flask import request, render_template
-from twilio import twiml
 from datetime import datetime
 
 @app.route('/')
@@ -19,14 +19,9 @@ def get_scoreboard():
 @app.route('/incoming_text', methods = ['GET', 'POST'])
 def incoming_text():
 	if request.method == 'POST':
-
-		print(request.data)
-
-		text =  Text(
-			number = request.form['From'], 
-			body = request.form['Body'], 
+		text = Text(
+			number = str(request.json['From']), 
+			body = str(request.json['Body']), 
 			time = datetime.now()
 			)
-		resp = twiml.Response()
-		resp.message(text.process_text())
-		return str(resp)
+		return(str(text.process_text()))

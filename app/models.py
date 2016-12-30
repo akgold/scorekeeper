@@ -23,6 +23,7 @@ class Person(db.Model):
 
     def add_points(self, amt):
         self.total_points += amt 
+        db.session.commit()
 
     @staticmethod
     def get_person_from_name(name):
@@ -89,6 +90,8 @@ class Text(object):
 
         # Remove any punctuation and assign.
         p.name = self.body.replace(".", "").replace("!", "").replace("?", "")
+        db.session.add(p)
+        db.session.commit()
 
         return p.name
         
@@ -105,9 +108,10 @@ class Text(object):
         if (p.name == None):
             try: 
                 self.check_name_format()
-                return self.add_name()
             except ValueError as e:
                 return str(e)
+            return "Got it, your name's " + self.add_name() + "."
+
 
         # Handle points assignment
         # Format is [#] to [NAME] for [REASON]
@@ -120,7 +124,15 @@ class Text(object):
 
         a = Award()
 
-        getter = Person.get_person_from_name(text[2])
+        # Allow people to use format [#] points to [NAME] for [REASON]
+        if text[1] == "points":
+            add = 1
+
+        name = text[2 + add]
+
+        getter = Person.get_person_from_name(name)
+        if(getter == None):
+            return("Sorry, I don't have " + name + ". Maybe format text right?")
         giver = Person.get_person_from_number(self.number)
 
         a = Award(amount = text[0], reason = " ".join(text[4:len(text)]), 
@@ -135,17 +147,34 @@ class Text(object):
 
     def check_points_format(self):
         text = self.body.split()
+
+        if(len(text) < 5):
+            raise ValueError("Give some points! Format as [#] to [NAME] for [REASON].")
+
+        # Parse text
+        add = 0
+        if text[1] == "points":
+            add = 1
+
+        fill1 = text[1 + add]
+        fill2 = text[3 + add]
+        name = text[2 + add]
+
+        # Check parts
         try:
             amt = float(text[0])
         except ValueError:
             raise ValueError("Your text needs to start with a number.")
         
-        if(text[1] != "to" or text[3] != "for"):
+        if(fill1 != "to" or fill2 != "for"):
             raise ValueError("Please format text as [#] to [NAME] for [REASON].")
 
-        if(Person.get_person_from_name(text[2]) == None):
+        if(Person.get_person_from_name(name) == None):
             raise ValueError("Sorry, I don't have the name " + 
-                text[2] + ". Please try again.") 
+                name + ". Please try again.") 
+
+        if(Person.get_person_from_name(name) == Person.get_person_from_number(self.number)):
+            raise ValueError("You can't give yourself points!")
 
 
 

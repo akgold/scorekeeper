@@ -110,6 +110,7 @@ class TestCase(unittest.TestCase):
         # Name text
         text = Text(number = "123123", body = "Farts.!?", time = datetime.now())
         assert text.add_name() == "Farts"
+        assert Person.get_person_from_number('123123').name == "Farts"
 
     def test_check_points_format(self):
         #Check that adheres to format [#] to [NAME] for [REASON]
@@ -118,10 +119,16 @@ class TestCase(unittest.TestCase):
         with self.assertRaises(ValueError) as exp:
             text.check_points_format()
 
+        assert str(exp.exception) == "Give some points! Format as [#] to [NAME] for [REASON]."
+
+        text = Text(number = "123123", body = "Alex gets 100 points for awesome", time = datetime.now()) 
+        with self.assertRaises(ValueError) as exp:
+            text.check_points_format()
+
         assert str(exp.exception) == "Your text needs to start with a number."
 
         # Number at open but wrong format
-        text = Text(number = "123123", body = "123 points to gryffindor!", time = datetime.now()) 
+        text = Text(number = "123123", body = "123 points to gryffindor! Yay!", time = datetime.now()) 
         with self.assertRaises(ValueError) as exp:
             text.check_points_format()
 
@@ -136,55 +143,74 @@ class TestCase(unittest.TestCase):
 
         # Working correctly
         p = Person(name = 'alex', number = '123123', total_points = 0)
+        q = Person(name = 'xaq', number = '123321', total_points = 0)
         db.session.add(p)
         db.session.commit()
 
-        text = Text(number = "123123", body = "123 to alex for coding", time = datetime.now())
+        text = Text(number = "123123", body = "123 to alex for coding", time = datetime.now()) 
+        with self.assertRaises(ValueError) as exp:
+            text.check_points_format()
 
+        assert str(exp.exception) == ("You can't give yourself points!")
+
+        text = Text(number = "123321", body = "123 to alex for coding", time = datetime.now())
         assert text.check_points_format() == None
 
     def test_process_text(self):
-        # Check processing first text correctly
+        # Processing first text from person one
         text = Text(number = "123123", body = "First Text!", time = datetime.now())
         assert Person.get_person_from_number('123123') == None
         assert text.process_text() == "What's your name? One word only, please!"
         assert Person.get_person_from_number('123123') != None
 
-        # Check processing name text correctly
+        # Processing second text from person one
         text = Text(number = "123123", body = "First Text!", time = datetime.now())
         assert text.process_text() == "Your name can only be one word."
 
         text = Text(number = "123123", body = "asdfasfasdfasdfasdfasaf", time = datetime.now())
         assert text.process_text() == "Sorry, too long. 15 characters or less!"
 
-        p = Person(name = 'alex', number = '123456', total_points = 0)
-        db.session.add(p)
-        db.session.commit()
-        text = Text(number = "123123", body = "alex.", time = datetime.now())
+        text = Text(number = "123123", body = "Xaq", time = datetime.now())
+        assert text.process_text() == "Got it, your name's Xaq."
+
+        text = Text(number = "123123", body = "Xaq", time = datetime.now())
+        assert text.process_text() == "Give some points! Format as [#] to [NAME] for [REASON]."
+
+        # Texts from person 2
+        text = Text(number = "123321", body = "Xaq", time = datetime.now())
+        assert text.process_text() == "What's your name? One word only, please!"
+
+        text = Text(number = "123321", body = "Xaq", time = datetime.now())
         assert text.process_text() == ("Send me your own damn name?!? " + 
                 "Unless you share a name with someone, then a nickname, please!")
+        
+        text = Text(number = "123321", body = "Alex", time = datetime.now())
+        assert text.process_text() == ("Got it, your name's Alex.")
 
-        text = Text(number = "123123", body = "xaq", time = datetime.now())
-        assert text.process_text() == "xaq"
+        # Person 1 sending points
+        text = Text(number = "123123", body = "Xaq", time = datetime.now())
+        assert text.process_text() == "Give some points! Format as [#] to [NAME] for [REASON]."
 
-        # Check processing points text correctly
         text = Text(number = "123123", body = "First Text!", time = datetime.now())
-        assert text.process_text() == "Your text needs to start with a number."
+        assert text.process_text() == "Give some points! Format as [#] to [NAME] for [REASON]."
 
-        text = Text(number = "123123", body = "100 points for gryffindor", time = datetime.now())
+        text = Text(number = "123123", body = "100 points for gryffindor for awesome", time = datetime.now())
         assert text.process_text() == "Please format text as [#] to [NAME] for [REASON]."
 
         text = Text(number = "123123", body = "100 to shosh for awesome", time = datetime.now())
         assert text.process_text() == "Sorry, I don't have the name shosh. Please try again."
 
+        text = Text(number = "123123", body = "100 to Xaq for sweet tunes", time = datetime.now())
+        assert text.process_text() == "You can't give yourself points!"
+
         time = datetime.now()
-        text = Text(number = "123123", body = "100 to alex for coding so good", time = time)
-        assert text.process_text() == "Thanks xaq! I'm sure alex deserved those points!"
-        assert Person.get_person_from_name('alex').total_points == 100
+        text = Text(number = "123123", body = "100 to Alex for coding so good", time = time)
+        assert text.process_text() == "Thanks Xaq! I'm sure Alex deserved those points!"
+        assert Person.get_person_from_name('Alex').total_points == 100
         a = Award.query.all()[0]
         assert a.reason == "coding so good"
-        assert a.giver == "xaq"
-        assert a.getter == Person.get_person_from_name('alex')
+        assert a.giver == "Xaq"
+        assert a.getter == Person.get_person_from_name('Alex')
         assert a.time == time
         assert a.amount == 100
 
