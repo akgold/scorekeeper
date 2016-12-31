@@ -4,6 +4,8 @@ To set virtual environment and install deps:
 `virtualenv env && . env/bin/activate && pip install -r requirements.txt`
 
 To Run:
+Go to folder with `db_create.py`
+`./db_create.py`
 `gunicorn app:app -b localhost:8000 &`
 
 Usage: 
