@@ -8,6 +8,21 @@ Go to folder with `db_create.py`
 `./db_create.py`
 `gunicorn app:app -b localhost:8000 &`
 
+Config file:
+In order for this app to work, need to set up a config file `app/config.py`. Format as below:
+
+`import os
+
+basedir = os.path.abspath(os.path.dirname(__file__))
+SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'app.db')
+SQLALCHEMY_MIGRATE_REPO = os.path.join(basedir, 'db_repository')
+
+ACCOUNT_SID = "123456"              
+AUTH_TOKEN = "123456"                 
+ACCOUNT_NUM = "+12405555555"`
+
+
+
 Usage: 
 * Users text a number hosted by Twilio in a particular format
 	* `#` to `NAME` for `REASON`
