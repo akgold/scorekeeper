@@ -1,5 +1,6 @@
 from app import db
 import collections
+from twilio.rest import TwilioRestClient
 
 class Person(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -22,7 +23,7 @@ class Person(db.Model):
             return str(self.id)
 
     def add_points(self, amt):
-        self.total_points += amt 
+        self.total_points += amt
         db.session.commit()
 
     @staticmethod
@@ -55,6 +56,19 @@ class Award(db.Model):
     def give_award(self):
         self.getter.add_points(self.amount)
 
+        ACCOUNT_SID = ""
+        AUTH_TOKEN = ""
+        ACCOUNT_NUM = ""
+        client = TwilioRestClient(ACCOUNT_SID, AUTH_TOKEN)
+
+        client.messages.create(
+			to=self.getter.number,
+			from_=ACCOUNT_NUM,
+			body=("Wow wow wow! You just got " + str(self.amount) +
+                        " from " + self.giver + " for " + self.reason+ ".")
+                )
+
+
 
 class Text(object):
     def __init__(self, number, body, time):
@@ -66,7 +80,7 @@ class Text(object):
         return Person.get_person_from_number(self.number) == None
 
     def add_new_sender(self):
-        p = Person(name = None, number = self.number, total_points = 0)
+        p = Person(name = self.number, number = self.number, total_points = 0)
         db.session.add(p)
         db.session.commit()
 
@@ -105,7 +119,17 @@ class Text(object):
 
         # Handle naming text
         p = Person.get_person_from_number(self.number)
-        if (p.name == None):
+        if(self.body == "CHANGE NAME"):
+                p.name = self.number
+                db.session.add(p)
+                db.session.commit()
+
+                return "Ok, what's your name? One word only, please!"
+
+        if(self.body == "MY NAME"):
+                return "Your name is " + p.name + "."
+
+        if (p.name == self.number):
             try: 
                 self.check_name_format()
             except ValueError as e:
@@ -121,8 +145,6 @@ class Text(object):
             self.check_points_format()
         except ValueError as e:
             return str(e)
-
-        a = Award()
 
         # Allow people to use format [#] points to [NAME] for [REASON]
         add = 0
@@ -144,9 +166,10 @@ class Text(object):
         a.give_award()
 
         return ("Thanks " + a.giver + "! I'm sure " + 
-        a.getter.name + " deserved those points!")
+        a.getter.name + " deserved those points for "+ a.reason + ".")
 
     def check_points_format(self):
+        # Should really extract points format and return
         text = self.body.split()
 
         if(len(text) < 5):
@@ -167,11 +190,11 @@ class Text(object):
         except ValueError:
             raise ValueError("Your text needs to start with a number.")
 
-        if(amt < 0):
-            raise ValueError("You're a jerk! You can't take points like that! Sneaky.")
+        if(amt < -1):
+            raise ValueError("So mean! No less than -1!")
 
-        if(amt > 100):
-            raise ValueError("Be reasonable. Point values between 0 and 100 only.")    
+        if(amt > 10):
+            raise ValueError("Be reasonable. Point values between -1 and 10 only.")
         
         if(fill1 != "to" or fill2 != "for"):
             raise ValueError("Please format text as [#] to [NAME] for [REASON].")

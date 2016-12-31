@@ -13,8 +13,12 @@ def index():
 
 @app.route('/get_scoreboard', methods = ['GET', 'POST'])
 def get_scoreboard():
-	scoreboard = dict(Person.query.with_entities(Person.name, Person.total_points).all())
-	return flask.jsonify(**scoreboard)	
+        people = Person.query.all()
+        keys = ['name', 'points', 'number']
+        ret = []
+        for p in people:
+                ret.append(dict(zip(keys, [p.name, p.total_points, p.number])))
+        return flask.jsonify(*ret)
 
 
 @app.route('/incoming_text', methods = ['GET', 'POST'])
@@ -22,16 +26,21 @@ def incoming_text():
 	if request.method == 'POST':
 		text = Text(
 			number = str(request.form.to_dict()['From']), 
-			body = str(request.form.to_dict()['Body']), 
+                        body = unicode(request.form.to_dict()['Body']),
 			time = datetime.now()
 		)
 
+                ACCOUNT_SID = ""
+                AUTH_TOKEN = ""
+                ACCOUNT_NUM = ""
 		client = TwilioRestClient(ACCOUNT_SID, AUTH_TOKEN) 
 
+
+                process = unicode(text.process_text())
 		client.messages.create(
-    		to=text.number, 
-    		from_=ACCOUNT_NUM, 
-    		body=str(text.process_text())
+			to=text.number,
+			from_=ACCOUNT_NUM,
+			body=process
 		)
 
-		return(str(text.process_text()))
+                return(process)
