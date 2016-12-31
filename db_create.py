@@ -1,4 +1,4 @@
-#!flask/bin/python
+#!env/bin/python
 
 # Script to create database. Only need to use to init.
 
