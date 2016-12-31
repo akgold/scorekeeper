@@ -1,4 +1,4 @@
-from app import db
+from app import db, config
 import collections
 from twilio.rest import TwilioRestClient
 
@@ -59,11 +59,11 @@ class Award(db.Model):
         ACCOUNT_SID = ""
         AUTH_TOKEN = ""
         ACCOUNT_NUM = ""
-        client = TwilioRestClient(ACCOUNT_SID, AUTH_TOKEN)
+        client = TwilioRestClient(config.ACCOUNT_SID, config.AUTH_TOKEN)
 
         client.messages.create(
 			to=self.getter.number,
-			from_=ACCOUNT_NUM,
+			from_=config.ACCOUNT_NUM,
 			body=("Wow wow wow! You just got " + str(self.amount) +
                         " from " + self.giver + " for " + self.reason+ ".")
                 )

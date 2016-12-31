@@ -4,3 +4,4 @@ node_modules
 *pyc
 *.orig
 env
+config.py

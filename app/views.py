@@ -1,4 +1,4 @@
-from app import app
+from app import app, config
 from app.models import Person, Text
 from twilio.rest import TwilioRestClient 
 import flask
@@ -30,16 +30,13 @@ def incoming_text():
 			time = datetime.now()
 		)
 
-                ACCOUNT_SID = ""
-                AUTH_TOKEN = ""
-                ACCOUNT_NUM = ""
-		client = TwilioRestClient(ACCOUNT_SID, AUTH_TOKEN) 
+		client = TwilioRestClient(config.ACCOUNT_SID, config.AUTH_TOKEN) 
 
 
                 process = unicode(text.process_text())
 		client.messages.create(
 			to=text.number,
-			from_=ACCOUNT_NUM,
+			from_=config.ACCOUNT_NUM,
 			body=process
 		)
 
