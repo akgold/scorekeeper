@@ -1,0 +1,7 @@
+Flask==0.12
+Flask_Bootstrap==3.3.7.0
+Flask_SQLAlchemy==2.1
+SQLAlchemy==1.1.4
+twilio==5.6.0
+app==0.0.1
+sqlalchemy_migrate==0.10.0
